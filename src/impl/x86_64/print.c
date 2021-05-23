@@ -1,4 +1,5 @@
 #include "print.h"
+#include "libc/memory.h"
 const static size_t NUM_COLS = 80;
 const static size_t NUM_ROWS = 25;
 
@@ -79,6 +80,38 @@ void print_str(char* str) {
     }
 }
 
+void print_uint64(uint64_t x){
+    char buffer[22];
+    memset(buffer, 0, 22);
+    int numbers[14], n=0;
+    while (x > 0) {
+        numbers[n] = x % 10;
+        x = x / 10;
+        n++;
+    }
+    int i = 0;
+    buffer[n] = '\0';
+    n--;
+    while (n >= 0) {
+        buffer[i] = numbers[n] + '0';
+        n--;
+        i++;
+    }
+    print_str(buffer);
+}
+
+
 void print_set_color(uint8_t foreground, uint8_t background) {
     color = foreground + (background << 4);
+}
+
+void print_success_ok() {
+    uint8_t cc = color;
+    print_set_color(PRINT_COLOR_WHITE, PRINT_COLOR_BLACK);
+    print_str("[ ");
+    print_set_color(PRINT_COLOR_LIGHT_GREEN, PRINT_COLOR_BLACK);
+    print_str("OK");
+    print_set_color(PRINT_COLOR_WHITE, PRINT_COLOR_BLACK);
+    print_str(" ]\n");
+    color = cc;
 }

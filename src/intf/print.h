@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stddef.h>
 
+
 enum ConsoleColors {
     PRINT_COLOR_BLACK = 0,
 	PRINT_COLOR_BLUE = 1,
@@ -27,3 +28,5 @@ void print_clear();
 void print_char(char ch);
 void print_str(char* str);
 void print_set_color(uint8_t fore, uint8_t back);
+void print_success_ok();
+void print_uint64(uint64_t x);
