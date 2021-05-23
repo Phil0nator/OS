@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "*.cb": "cpp",
+        "*.k": "cpp",
+        "print.h": "c"
+    }
+}
