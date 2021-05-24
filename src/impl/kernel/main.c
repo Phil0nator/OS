@@ -3,12 +3,14 @@
 #include "IDT.h"
 #include "drivers/timer.h"
 #include "drivers/keyboard.h"
+#include "libc/multiboot.h"
 
-void kernel_main() {
+void kernel_main(multiboot_info_t* mbd, unsigned int magic) {
     print_clear();
     print_set_color(PRINT_COLOR_WHITE, PRINT_COLOR_BLACK);
     print_str("Starting the kernel.\n");
-    
+
+
     // Startup tasks:
     print_str("Creating Interrupt Descriptor Table: ");
     install_IDT();
