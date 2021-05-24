@@ -81,6 +81,11 @@ void print_str(char* str) {
 }
 
 void print_uint64(uint64_t x){
+    if(x == 0){
+        print_str("0");
+        return;
+    }
+    
     char buffer[22];
     memset(buffer, 0, 22);
     int numbers[14], n=0;

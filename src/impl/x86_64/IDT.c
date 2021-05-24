@@ -102,10 +102,9 @@ extern void irq_code12();
 extern void irq_code13();
 extern void irq_code14();
 extern void irq_code15();
-extern void irq_code16();
 
-extern void* irq_routines[16] = {
-    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+void* irq_routines[16] = {
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 };
 
 
@@ -180,23 +179,24 @@ void uninstallIRQHandler(int irq){
 void install_IRQs(){
     irq_remap();
     setIDTGate(32, (size_t)irq_code0, 0x08, 0x8E);
-    setIDTGate(32, (size_t)irq_code1, 0x08, 0x8E);
-    setIDTGate(32, (size_t)irq_code2, 0x08, 0x8E);
-    setIDTGate(32, (size_t)irq_code3, 0x08, 0x8E);
-    setIDTGate(32, (size_t)irq_code4, 0x08, 0x8E);
-    setIDTGate(32, (size_t)irq_code5, 0x08, 0x8E);
-    setIDTGate(32, (size_t)irq_code6, 0x08, 0x8E);
-    setIDTGate(32, (size_t)irq_code7, 0x08, 0x8E);
-    setIDTGate(32, (size_t)irq_code8, 0x08, 0x8E);
-    setIDTGate(32, (size_t)irq_code9, 0x08, 0x8E);
-    setIDTGate(32, (size_t)irq_code10, 0x08, 0x8E);
-    setIDTGate(32, (size_t)irq_code11, 0x08, 0x8E);
-    setIDTGate(32, (size_t)irq_code12, 0x08, 0x8E);
-    setIDTGate(32, (size_t)irq_code13, 0x08, 0x8E);
-    setIDTGate(32, (size_t)irq_code14, 0x08, 0x8E);
-    setIDTGate(32, (size_t)irq_code15, 0x08, 0x8E);
-    setIDTGate(32, (size_t)irq_code16, 0x08, 0x8E);
+    setIDTGate(33, (size_t)irq_code1, 0x08, 0x8E);
+    setIDTGate(34, (size_t)irq_code2, 0x08, 0x8E);
+    setIDTGate(35, (size_t)irq_code3, 0x08, 0x8E);
+    setIDTGate(36, (size_t)irq_code4, 0x08, 0x8E);
+    setIDTGate(37, (size_t)irq_code5, 0x08, 0x8E);
+    setIDTGate(38, (size_t)irq_code6, 0x08, 0x8E);
+    setIDTGate(39, (size_t)irq_code7, 0x08, 0x8E);
+    setIDTGate(40, (size_t)irq_code8, 0x08, 0x8E);
+    setIDTGate(41, (size_t)irq_code9, 0x08, 0x8E);
+    setIDTGate(42, (size_t)irq_code10, 0x08, 0x8E);
+    setIDTGate(43, (size_t)irq_code11, 0x08, 0x8E);
+    setIDTGate(44, (size_t)irq_code12, 0x08, 0x8E);
+    setIDTGate(45, (size_t)irq_code13, 0x08, 0x8E);
+    setIDTGate(46, (size_t)irq_code14, 0x08, 0x8E);
+    setIDTGate(47, (size_t)irq_code15, 0x08, 0x8E);
 }
+
+
 
 void install_IDT(){
 
@@ -234,26 +234,29 @@ void fault_handler(uint64_t err) {
         print_set_color(PRINT_COLOR_RED,PRINT_COLOR_BLACK);
         print_str(exception_messages[err]);
         haltCPU();
+    }else {
+        irq_handler(err);
     }
 }
 
 void irq_handler(uint64_t err) {
-    print_str("Handling IRQ: ");
-    print_uint64(err);
-    print_newline();
-    void (*handler)(uint64_t r) = irq_routines[err-32];
-    if (handler != NULL) {
-        handler(err);
+    if (err > 31){
+        void (*handler)(uint64_t r) = irq_routines[err-32];
+        if (handler != NULL) {
+            handler(err);
+        }else {
+        }
+        
+        /* If the IDT entry that was invoked was greater than 40
+        *  (meaning IRQ8 - 15), then we need to send an EOI to
+        *  the slave controller */
+        if (err >= 40){
+            outb(0xA0, 0x20);
+        }
+        /* In either case, we need to send an EOI to the master
+        *  interrupt controller too */
+        outb(0x20, 0x20);
+    }else {
+        fault_handler(err);
     }
-    
-    /* If the IDT entry that was invoked was greater than 40
-    *  (meaning IRQ8 - 15), then we need to send an EOI to
-    *  the slave controller */
-    if (err >= 40){
-        outb(0xA0, 0x20);
-    }
-    /* In either case, we need to send an EOI to the master
-    *  interrupt controller too */
-    outb(0x20, 0x20);
-
 }

@@ -4,6 +4,7 @@
         "*.k": "cpp",
         "print.h": "c",
         "cpuutils.h": "c",
-        "stddef.h": "c"
+        "stddef.h": "c",
+        "idt.h": "c"
     }
 }

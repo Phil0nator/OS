@@ -13,8 +13,7 @@ void kernel_main() {
     install_IDT();
     print_success_ok();
 
-
-    haltCPU();
+    for (;;);
 
 
 }

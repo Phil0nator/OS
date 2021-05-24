@@ -24,61 +24,54 @@ extern irq_handler
 
 ; irq codes 31 through 47
 irq_code0:
-    IRQ_SINGLE_HANDLE 31
-irq_code1:
     IRQ_SINGLE_HANDLE 32
-irq_code2:
+irq_code1:
     IRQ_SINGLE_HANDLE 33
-irq_code3:
+irq_code2:
     IRQ_SINGLE_HANDLE 34
-irq_code4:
+irq_code3:
     IRQ_SINGLE_HANDLE 35
-irq_code5:
+irq_code4:
     IRQ_SINGLE_HANDLE 36
-irq_code6:
+irq_code5:
     IRQ_SINGLE_HANDLE 37
-irq_code7:
+irq_code6:
     IRQ_SINGLE_HANDLE 38
-
+irq_code7:
+    IRQ_SINGLE_HANDLE 39
 irq_code8:
-    IRQ_NOPUSH_HANDLE 39
-
-irq_code9:
     IRQ_SINGLE_HANDLE 40
-
+irq_code9:
+    IRQ_SINGLE_HANDLE 41
 irq_code10:
-    IRQ_NOPUSH_HANDLE 41
+    IRQ_SINGLE_HANDLE 42
 irq_code11:
-    IRQ_NOPUSH_HANDLE 42
+    IRQ_SINGLE_HANDLE 43
 irq_code12:
-    IRQ_NOPUSH_HANDLE 43
+    IRQ_SINGLE_HANDLE 44
 irq_code13:
-    IRQ_NOPUSH_HANDLE 44
+    IRQ_SINGLE_HANDLE 45
 irq_code14:
-    IRQ_NOPUSH_HANDLE 45
-
-
-
-irq_code15:
     IRQ_SINGLE_HANDLE 46
-irq_code16:
+irq_code15:
     IRQ_SINGLE_HANDLE 47
+
 
 
 ; common code for any error
 irq_common_handle:
-    push gs
-    push fs
+    ;push gs
+    ;push fs
     ;call fault_handler
     push rax
     mov rax, irq_handler
     call rax       ; A special call, preserves the 'eip' register
     pop rax
-    pop fs
-    pop gs
+    ;pop fs
+    ;pop gs
     POPAQS
     iretq       ; pops 5 things at once: CS, EIP, EFLAGS, SS, and ESP!
-
+    
 
 global  irq_code0;
 global  irq_code1;
