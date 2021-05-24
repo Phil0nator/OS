@@ -50,9 +50,22 @@ void print_newline() {
     clear_row(NUM_COLS - 1);
 }
 
+void print_backspace() {
+    if (col){
+        col --;
+    }else {
+        col = NUM_COLS;
+        if (row) row--;
+    }
+    buffer[col+NUM_COLS*(row)] = (struct VMChar) { ch: ' ', color: color };
+}
+
 void print_char(char character) {
     if (character == '\n') {
         print_newline();
+        return;
+    }else if (character == '\b'){
+        print_backspace();
         return;
     }
 

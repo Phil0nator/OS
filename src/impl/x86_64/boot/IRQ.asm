@@ -60,15 +60,14 @@ irq_code15:
 
 ; common code for any error
 irq_common_handle:
-    ;push gs
-    ;push fs
-    ;call fault_handler
+    push gs
+    push fs
     push rax
     mov rax, irq_handler
     call rax       ; A special call, preserves the 'eip' register
     pop rax
-    ;pop fs
-    ;pop gs
+    pop fs
+    pop gs
     POPAQS
     iretq       ; pops 5 things at once: CS, EIP, EFLAGS, SS, and ESP!
     

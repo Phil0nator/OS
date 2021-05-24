@@ -24,6 +24,7 @@ enum ConsoleColors {
 };
 
 void print_newline();
+void print_backspace();
 void print_clear();
 void print_char(char ch);
 void print_str(char* str);

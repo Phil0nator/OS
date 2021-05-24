@@ -5,6 +5,8 @@
         "print.h": "c",
         "cpuutils.h": "c",
         "stddef.h": "c",
-        "idt.h": "c"
+        "idt.h": "c",
+        "timer.h": "c",
+        "keyboard.h": "c"
     }
 }

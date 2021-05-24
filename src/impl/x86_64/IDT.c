@@ -210,7 +210,6 @@ void install_IDT(){
     install_IRQs();
 
     load_interdesctable();
-    start_system_interrupts();
 }
 
 void setIDTGate(uint8_t num, size_t base, uint16_t sel, uint8_t flags){
