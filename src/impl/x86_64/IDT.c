@@ -86,6 +86,29 @@ extern void isr_code29();
 extern void isr_code30();
 extern void isr_code31();
 
+extern void irq_code0();
+extern void irq_code1();
+extern void irq_code2();
+extern void irq_code3();
+extern void irq_code4();
+extern void irq_code5();
+extern void irq_code6();
+extern void irq_code7();
+extern void irq_code8();
+extern void irq_code9();
+extern void irq_code10();
+extern void irq_code11();
+extern void irq_code12();
+extern void irq_code13();
+extern void irq_code14();
+extern void irq_code15();
+extern void irq_code16();
+
+extern void* irq_routines[16] = {
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+};
+
+
 void create_isrs(){
 
     setIDTGate(0, ((size_t)isr_code0), 0x08, 0x8E);
@@ -126,6 +149,54 @@ void create_isrs(){
 
 }
 
+/* Normally, IRQs 0 to 7 are mapped to entries 8 to 15. This
+*  is a problem in protected mode, because IDT entry 8 is a
+*  Double Fault! Without remapping, every time IRQ0 fires,
+*  you get a Double Fault Exception, which is NOT actually
+*  what's happening. We send commands to the Programmable
+*  Interrupt Controller (PICs - also called the 8259's) in
+*  order to make IRQ0 to 15 be remapped to IDT entries 32 to
+*  47 */
+void irq_remap(){
+    outb(0x20, 0x11);
+    outb(0xA0, 0x11);
+    outb(0x21, 0x20);
+    outb(0xA1, 0x28);
+    outb(0x21, 0x04);
+    outb(0xA1, 0x02);
+    outb(0x21, 0x01);
+    outb(0xA1, 0x01);
+    outb(0x21, 0x0);
+    outb(0xA1, 0x0);
+}
+void installIRQHandler(int irq, void(*handler)(uint64_t r)) {
+    irq_routines[irq] = handler;
+}
+void uninstallIRQHandler(int irq){
+    irq_routines[irq] = NULL;
+}
+
+// Setup the handlers, and map them correctly 
+void install_IRQs(){
+    irq_remap();
+    setIDTGate(32, (size_t)irq_code0, 0x08, 0x8E);
+    setIDTGate(32, (size_t)irq_code1, 0x08, 0x8E);
+    setIDTGate(32, (size_t)irq_code2, 0x08, 0x8E);
+    setIDTGate(32, (size_t)irq_code3, 0x08, 0x8E);
+    setIDTGate(32, (size_t)irq_code4, 0x08, 0x8E);
+    setIDTGate(32, (size_t)irq_code5, 0x08, 0x8E);
+    setIDTGate(32, (size_t)irq_code6, 0x08, 0x8E);
+    setIDTGate(32, (size_t)irq_code7, 0x08, 0x8E);
+    setIDTGate(32, (size_t)irq_code8, 0x08, 0x8E);
+    setIDTGate(32, (size_t)irq_code9, 0x08, 0x8E);
+    setIDTGate(32, (size_t)irq_code10, 0x08, 0x8E);
+    setIDTGate(32, (size_t)irq_code11, 0x08, 0x8E);
+    setIDTGate(32, (size_t)irq_code12, 0x08, 0x8E);
+    setIDTGate(32, (size_t)irq_code13, 0x08, 0x8E);
+    setIDTGate(32, (size_t)irq_code14, 0x08, 0x8E);
+    setIDTGate(32, (size_t)irq_code15, 0x08, 0x8E);
+    setIDTGate(32, (size_t)irq_code16, 0x08, 0x8E);
+}
 
 void install_IDT(){
 
@@ -136,8 +207,10 @@ void install_IDT(){
     memset( (char*) &IDT, 0, sizeof(struct idt_entry)*256);
     
     create_isrs();
-    load_interdesctable();
+    install_IRQs();
 
+    load_interdesctable();
+    start_system_interrupts();
 }
 
 void setIDTGate(uint8_t num, size_t base, uint16_t sel, uint8_t flags){
@@ -154,16 +227,33 @@ void setIDTGate(uint8_t num, size_t base, uint16_t sel, uint8_t flags){
     IDT[num].reserved = 0;
 
 }
-void fault_handler(struct register_state regs) {
-    
-    print_str("CPU Error: ");
-    print_uint64(regs.int_no);
-    haltCPU();
+void fault_handler(uint64_t err) {
 
-    if (regs.int_no < 32) 
+    if (err < 32) 
     {
         print_set_color(PRINT_COLOR_RED,PRINT_COLOR_BLACK);
-        print_str(exception_messages[regs.int_no]);
+        print_str(exception_messages[err]);
         haltCPU();
     }
+}
+
+void irq_handler(uint64_t err) {
+    print_str("Handling IRQ: ");
+    print_uint64(err);
+    print_newline();
+    void (*handler)(uint64_t r) = irq_routines[err-32];
+    if (handler != NULL) {
+        handler(err);
+    }
+    
+    /* If the IDT entry that was invoked was greater than 40
+    *  (meaning IRQ8 - 15), then we need to send an EOI to
+    *  the slave controller */
+    if (err >= 40){
+        outb(0xA0, 0x20);
+    }
+    /* In either case, we need to send an EOI to the master
+    *  interrupt controller too */
+    outb(0x20, 0x20);
+
 }

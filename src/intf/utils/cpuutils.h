@@ -36,3 +36,4 @@ extern short inw(IOPort p);
 extern void outw(IOPort p, short o);
 
 extern void load_interdesctable();
+extern void start_system_interrupts();

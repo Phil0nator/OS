@@ -44,6 +44,14 @@ extern struct idt_ptr hardcodedIDTP;
 *  exception_message[interrupt_number] */
 extern unsigned char* cpu_exceptions_messages[31];
 
+
+extern void* irq_routines[16];
+
 void setIDTGate(uint8_t num, size_t base, uint16_t sel, uint8_t flags);
 void install_IDT();
-void fault_handler(struct register_state regs);
+void irq_remap();
+void installIRQHandler(int irq, void(*handler)(uint64_t r));
+void uninstallIRQHandler(int irq);
+void install_IRQs();
+void fault_handler(uint64_t err);
+void irq_handler(uint64_t err);
