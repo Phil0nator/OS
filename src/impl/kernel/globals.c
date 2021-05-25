@@ -1,4 +1,5 @@
 #include "globals.h"
 
-MemoryChunk globalMemoryList[256];
-extern size_t globalMemoryList_size = 0;
+PhysicalMemoryArea globalMemoryList[24];
+size_t globalMemoryList_size = 0;
+int errno = 0;

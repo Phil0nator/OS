@@ -8,6 +8,7 @@ uint64_t get_system_ticks() {
 }
 
 void timer_driver_handle(uint64_t n) {
+    n++;
     system_timer_ticks ++;
     // if (system_timer_ticks % 18 == 0){
     //     print_str("One second passed!\n");

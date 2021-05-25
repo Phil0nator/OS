@@ -10,7 +10,7 @@ struct idt_ptr hardcodedIDTP;
 *  corresponds to each and every exception. We get the correct
 *  message by accessing like:
 *  exception_message[interrupt_number] */
-unsigned char *exception_messages[] =
+char *exception_messages[] =
 {
     "Division By Zero",
     "Debug",

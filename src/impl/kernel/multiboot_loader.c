@@ -1,4 +1,4 @@
-#include "multiboot_loader.h"
+#include "kernel/multiboot_loader.h"
 #include "globals.h"
 
 void loadMultiboot2_mmap( struct multiboot_tag* mmap_tag ){
@@ -13,22 +13,20 @@ void loadMultiboot2_mmap( struct multiboot_tag* mmap_tag ){
         )
     {
 
-        globalMemoryList[i] = (MemoryChunk) { start: mmap->addr,  end: mmap->addr+mmap->len };    
+        globalMemoryList[i] = (PhysicalMemoryArea) { 
+            chunk: (MemoryChunk) { 
+                start: (char*) mmap->addr, 
+                end: (char*) mmap->addr + mmap->len
+                },
+            type: mmap->type
+            };    
+
         i++;
     }
     globalMemoryList_size = i;
     print_success_ok();
 
-    /* To print the results: (after interrupts exists please)
-    for (size_t i = 0 ; i < globalMemoryList_size ; i ++) {
-        print_str("{\n     start: ");
-        print_uint64(globalMemoryList[i].start);
-        print_str("\n     end: ");
-        print_uint64(globalMemoryList[i].end);
-        print_str("\n}\n");
-        delayticks(5*18);
-    }
-    */
+    
 
 }
 
@@ -46,7 +44,6 @@ void loadMultiboot2Tags( void* addr, uint32_t magic ) {
     
 
 
-    unsigned size = *(unsigned*) addr;
     for (
         struct multiboot_tag* tag = (struct multiboot_tag*) (addr + 8);
         tag->type != MULTIBOOT_TAG_TYPE_END; 

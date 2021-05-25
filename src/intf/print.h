@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include "globals.h"
 
 
 enum ConsoleColors {
@@ -32,3 +33,5 @@ void print_set_color(uint8_t fore, uint8_t back);
 void print_success_ok();
 void print_kernel_load_fail();
 void print_uint64(uint64_t x);
+
+void kperror(char* str);

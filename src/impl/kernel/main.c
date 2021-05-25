@@ -4,9 +4,10 @@
 #include "drivers/timer.h"
 #include "drivers/keyboard.h"
 #include "libc/multiboot.h"
-#include "multiboot_loader.h"
+#include "kernel/multiboot_loader.h"
 #include "globals.h"
 #include "libc/delay.h"
+#include "kernel/kalloc.h"
 
 #define CHECK_FLAG(flags,bit)   ((flags) & (1 << (bit)))
 
@@ -43,6 +44,21 @@ void kernel_main(void* addr, uint32_t magic) {
 
     loadMultiboot2Tags(addr, magic);
 
+    /* To print the results: (after interrupts exists please)
+    for (size_t i = 0 ; i < globalMemoryList_size ; i ++) {
+        print_str("{\n     start: ");
+        print_uint64((size_t)globalMemoryList[i].chunk.start);
+        print_str("\n     end: ");
+        print_uint64((size_t)globalMemoryList[i].chunk.end);
+        print_str("\n}\n");
+        delayticks(5*18);
+    }
+     */
+
+    //Page test = kalloc_page();
+    //print_uint64((size_t)test.addr);
+    //memcpy(test.addr, "testing string", 15);
+    //print_str(test.addr);
 
     for (;;);
 

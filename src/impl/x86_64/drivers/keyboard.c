@@ -43,7 +43,8 @@ unsigned char kbdus[128] =
 
 void keyboard_driver_irqhandle(uint64_t e){
     
-    
+    e++;
+
     unsigned char scancode = inb(0x60);
     
     if (scancode & 0x80){
