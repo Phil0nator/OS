@@ -47,7 +47,7 @@ void print_newline() {
         }
     }
 
-    clear_row(NUM_COLS - 1);
+    clear_row(NUM_ROWS - 1);
 }
 
 void print_backspace() {
@@ -129,6 +129,17 @@ void print_success_ok() {
     print_str("[ ");
     print_set_color(PRINT_COLOR_LIGHT_GREEN, PRINT_COLOR_BLACK);
     print_str("OK");
+    print_set_color(PRINT_COLOR_WHITE, PRINT_COLOR_BLACK);
+    print_str(" ]\n");
+    color = cc;
+}
+
+void print_kernel_load_fail() {
+    uint8_t cc = color;
+    print_set_color(PRINT_COLOR_WHITE, PRINT_COLOR_BLACK);
+    print_str("[ ");
+    print_set_color(PRINT_COLOR_LIGHT_RED, PRINT_COLOR_BLACK);
+    print_str("FAIED");
     print_set_color(PRINT_COLOR_WHITE, PRINT_COLOR_BLACK);
     print_str(" ]\n");
     color = cc;

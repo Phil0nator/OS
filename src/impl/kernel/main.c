@@ -4,11 +4,23 @@
 #include "drivers/timer.h"
 #include "drivers/keyboard.h"
 #include "libc/multiboot.h"
+#include "multiboot_loader.h"
+#include "globals.h"
+#include "libc/delay.h"
 
-void kernel_main(multiboot_info_t* mbd, unsigned int magic) {
+#define CHECK_FLAG(flags,bit)   ((flags) & (1 << (bit)))
+
+
+
+
+void kernel_main(void* addr, uint32_t magic) {
+    
     print_clear();
+    
+    
     print_set_color(PRINT_COLOR_WHITE, PRINT_COLOR_BLACK);
     print_str("Starting the kernel.\n");
+    
 
 
     // Startup tasks:
@@ -28,6 +40,8 @@ void kernel_main(multiboot_info_t* mbd, unsigned int magic) {
     print_str("Starting System Interrupts: ");
     start_system_interrupts();
     print_success_ok();
+
+    loadMultiboot2Tags(addr, magic);
 
 
     for (;;);

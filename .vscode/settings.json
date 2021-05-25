@@ -7,6 +7,10 @@
         "stddef.h": "c",
         "idt.h": "c",
         "timer.h": "c",
-        "keyboard.h": "c"
+        "keyboard.h": "c",
+        "multiboot.h": "c",
+        "globals.h": "c",
+        "multiboot_loader.h": "c",
+        "delay.h": "c"
     }
 }

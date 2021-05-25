@@ -1,4 +1,5 @@
 global start
+global multibootInfo
 extern long_mode_start
 section .text
 bits 32
@@ -10,10 +11,29 @@ bits 32
 %define ENABLE_LONGMODE_BIT 8
 %define ENABLE_PAGING_BIT 31
 
+copyMultibootHeader:
+    push ecx
+    push edx
+
+    mov ecx, 120
+.cpylp:
+    mov edx, [edi+ecx]
+    mov [multibootInfo+ecx], edx
+    
+    sub ecx, 4
+    cmp ecx, 0
+    jge .cpylp
+
+    pop edx
+    pop ecx
+    ret
+
 start:
-    mov esp, stack_top
-    push eax
-    push ebx
+    mov esp, stack_top ; setup stack
+    mov edi, ebx ; move the multiboot header pointer into parameter 1
+    mov esi, eax ; move the multiboot magic number into parameter 2
+
+    
 
     call check_multiboot
     call check_cpuid
@@ -99,7 +119,7 @@ check_long_mode: ; in order to check if there is longmode...
     ret
 
 
-.no_longmode
+.no_longmode:
     mov al, 'L'
     jmp error
 
@@ -146,6 +166,10 @@ page_table_l2:
 stack_bottom:
     resb 4096*4
 stack_top:
+
+multibootInfo:
+    resb 120
+multibootInfo_end:
 
 section .rodata
 gdt64:
