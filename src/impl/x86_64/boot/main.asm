@@ -1,5 +1,6 @@
 global start
 global multibootInfo
+global page_table_l4
 extern long_mode_start
 section .text
 bits 32
@@ -168,7 +169,7 @@ stack_bottom:
 stack_top:
 
 multibootInfo:
-    resb 120
+    resb 4096
 multibootInfo_end:
 
 section .rodata

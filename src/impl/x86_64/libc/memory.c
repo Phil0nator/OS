@@ -16,9 +16,14 @@ void memcpy (char* dest, char* source, size_t n){
 size_t memsize(const MemoryChunk* m){
     return m->end - m->start;
 }
+bool memcontains(const MemoryChunk* m, char* ptr){
+    return ptr > m->start && ptr < m->end;
+}
+
 bool physicalMemoryAreaValid(const PhysicalMemoryArea* pma) {
     return 
         pma->type == MULTIBOOT_MEMORY_AVAILABLE &&
-        pma->chunk.start != NULL
+        pma->chunk.start != NULL //&& 
+        //(!memcontains(&pma->chunk, &physicalMemoryAreaValid)); // check if the memory area contains kernel code
         ;
 }

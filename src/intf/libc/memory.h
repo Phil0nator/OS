@@ -23,6 +23,7 @@ typedef struct {
 
 
 size_t memsize(const MemoryChunk* m);
+bool memcontains(const MemoryChunk* m, char* ptr);
 bool physicalMemoryAreaValid(const PhysicalMemoryArea* pma);
 
 void memset (char* start, char c, size_t n);

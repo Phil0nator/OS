@@ -8,6 +8,7 @@
 #include "globals.h"
 #include "libc/delay.h"
 #include "kernel/kalloc.h"
+#include "kernel/Paging.h"
 
 #define CHECK_FLAG(flags,bit)   ((flags) & (1 << (bit)))
 
@@ -22,6 +23,9 @@ void kernel_main(void* addr, uint32_t magic) {
     print_set_color(PRINT_COLOR_WHITE, PRINT_COLOR_BLACK);
     print_str("Starting the kernel.\n");
     
+    print_str("Setting up l4 Page: ");
+    setupPageTablel4Recursive( &page_table_l4 );
+    print_success_ok();
 
 
     // Startup tasks:
@@ -44,21 +48,23 @@ void kernel_main(void* addr, uint32_t magic) {
 
     loadMultiboot2Tags(addr, magic);
 
-    /* To print the results: (after interrupts exists please)
-    for (size_t i = 0 ; i < globalMemoryList_size ; i ++) {
-        print_str("{\n     start: ");
-        print_uint64((size_t)globalMemoryList[i].chunk.start);
-        print_str("\n     end: ");
-        print_uint64((size_t)globalMemoryList[i].chunk.end);
-        print_str("\n}\n");
-        delayticks(5*18);
-    }
-     */
 
-    //Page test = kalloc_page();
-    //print_uint64((size_t)test.addr);
-    //memcpy(test.addr, "testing string", 15);
-    //print_str(test.addr);
+    // for (size_t i = 0 ; i < globalMemoryList_size ; i ++) {
+    //     print_str("{\n     start: ");
+    //     print_uint64((size_t)globalMemoryList[i].chunk.start);
+    //     print_str("\n     end: ");
+    //     print_uint64((size_t)globalMemoryList[i].chunk.end);
+    //     print_str("\n}\n");
+    //     delayticks(5*18);
+    // }
+    Page test = kalloc_page();
+    if (test.addr) {
+        print_uint64((size_t)test.addr);
+        memcpy(test.addr, "\ntesting string", 16);
+        print_str(test.addr);
+    }else {
+        print_str("No Memory Error.");
+    }
 
     for (;;);
 

@@ -1,4 +1,5 @@
 #include "kernel/kalloc.h"
+#include "kernel/Paging.h"
 
 // An indexer for loading raw physical memory areas from the multiboot
 // mmap entry list.
@@ -82,14 +83,14 @@ Page kalloc_page(){
                 // Check if the area is valid for RAM use...
                 // if not, the loop continues
                 if (physicalMemoryAreaValid( &area )) {
-                    out.addr = area.chunk.start;
+                    out.addr = (area.chunk.start);
                     // since a valid page has been found,
                     // all other valid pages in this area need to be loaded into the free
                     // pages linked list so that they can be loaded too later.
                     char* ptr = out.addr + PAGE_SIZE;
                     while (ptr < area.chunk.end) {
                         // add each offset of PAGE_SIZE to the linked list
-                        push_free_page(ptr);
+                        //push_free_page(ptr);
                         ptr += PAGE_SIZE;
                     }
                     
@@ -112,7 +113,7 @@ Page kalloc_page(){
         kalloc_freePages = kalloc_freePages->next;
     }
 
-    return out;
+    return ( Page ) { addr: mapPageToKernelVirtualSpace(out.addr) };
 
 }
 void kfree_page(Page p);

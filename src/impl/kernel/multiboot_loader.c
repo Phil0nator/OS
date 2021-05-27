@@ -16,7 +16,7 @@ void loadMultiboot2_mmap( struct multiboot_tag* mmap_tag ){
         globalMemoryList[i] = (PhysicalMemoryArea) { 
             chunk: (MemoryChunk) { 
                 start: (char*) mmap->addr, 
-                end: (char*) mmap->addr + mmap->len
+                end: (char*) (mmap->addr + mmap->len)
                 },
             type: mmap->type
             };    
