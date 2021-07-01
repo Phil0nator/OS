@@ -28,12 +28,20 @@ enum CPUException {
 
 typedef uint16_t IOPort;
 
+typedef struct cpuid_regs
+{
+    uint64_t rbx, rcx, rdx;
+} cpuid_regs_t;
+
 extern void haltCPU();
 
 extern char inb(IOPort p);
 extern void outb(IOPort p, char o);
 extern short inw(IOPort p);
 extern void outw(IOPort p, short o);
+
+extern void __cpuid(uint64_t n, cpuid_regs_t* dest);
+extern uint64_t _cpu_getcr2();
 
 extern void load_interdesctable();
 extern void start_system_interrupts();

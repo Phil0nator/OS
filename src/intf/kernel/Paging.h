@@ -5,6 +5,10 @@
 #include "globals.h"
 #define PAGE_ENTRIES_PER_TABLE 512
 
+
+typedef char* va_t;         // Virtual address
+typedef uint64_t pa_t;      // Physical address
+
 struct PagingEntryBitField{
 
     bool present: 1;
@@ -23,6 +27,7 @@ struct PagingEntryBitField{
 
 };
 
+
 typedef struct PagingEntryBitField PagingEntryBitField_t;
 
 
@@ -34,19 +39,21 @@ typedef struct PageTable PageTable_t;
 
 void setupPageTablel4Recursive( PageTable_t* l4 );
 void setupGenericPageTable( PageTable_t* p );
-size_t pageTableNextSlot(PageTable_t* p);
-VirtualAddress createVirtualAddress( 
+va_t createVirtualAddress( 
                                         uint64_t p4idx, 
                                         uint64_t p3idx, 
                                         uint64_t p2idx, 
                                         uint64_t p1idx, 
                                         uint64_t off 
                                     );
-// REQUIRE: page be of size 4096
-VirtualAddress mapPageToKernelVirtualSpace( PhysicalAddress page );
 
+void wire_page( pa_t pa, va_t va );
 
 extern PageTable_t page_table_l4;
+extern PageTable_t page_table_l3;
+extern PageTable_t page_table_l2;
+extern PageTable_t page_table_l1;
+
 extern size_t page_table_l4_counter;
 
 

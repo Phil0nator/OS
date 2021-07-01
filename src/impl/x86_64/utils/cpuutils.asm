@@ -5,7 +5,7 @@ bits 64
 ; extern short inw(IOPort p);
 ; extern void outw(IOPort p, short o);
 
-global inb, outb, inw, outw, haltCPU
+global inb, outb, inw, outw, haltCPU, __cpuid, _cpu_getcr2
 
 inb: ; ( word p )
     mov dx, di
@@ -31,3 +31,24 @@ outw: ; (word p, word o )
 
 haltCPU:
     hlt
+
+
+__cpuid:
+    push rbx
+    push rcx
+    push rdx
+
+    mov rax, rdi
+    cpuid
+    mov [rsi], rbx
+    mov [rsi+8], rcx
+    mov [rsi+16], rdx
+
+    pop rdx
+    pop rcx
+    pop rbx
+    ret
+
+_cpu_getcr2:
+    mov rax, cr2
+    ret

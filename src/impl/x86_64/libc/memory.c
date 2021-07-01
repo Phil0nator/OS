@@ -12,6 +12,12 @@ void memcpy (char* dest, char* source, size_t n){
         dest[n] = source[n];
 }
 
+void bzero(char* dest, size_t n)
+{
+    for (n --; n!= -1ULL; n--)
+        dest[n] = 0;
+}
+
 
 size_t memsize(const MemoryChunk* m){
     return m->end - m->start;

@@ -35,7 +35,8 @@ struct register_state
     size_t eip, cs, eflags, useresp, ss;   /* pushed by the processor automatically */ 
 };
 
-extern struct idt_entry IDT[256];
+#define IDT_ENTRIES 256
+extern struct idt_entry IDT[IDT_ENTRIES];
 extern struct idt_ptr hardcodedIDTP;
 
 /* This is a simple string array. It contains the message that

@@ -3,7 +3,7 @@
 #include "libc/memory.h"
 #include "print.h"
 
-struct idt_entry IDT[256];
+struct idt_entry IDT[IDT_ENTRIES];
 struct idt_ptr hardcodedIDTP;
 
 /* This is a simple string array. It contains the message that
@@ -201,10 +201,10 @@ void install_IRQs(){
 void install_IDT(){
 
     // setup the limits for the descriptor pointer
-    hardcodedIDTP.limit = (sizeof (struct idt_entry) * 256) - 1;
+    hardcodedIDTP.limit = (sizeof (struct idt_entry) * IDT_ENTRIES) - 1;
     hardcodedIDTP.base =  ( (size_t) &IDT );
 
-    memset( (char*) &IDT, 0, sizeof(struct idt_entry)*256);
+    memset( (char*) &IDT, 0, sizeof(struct idt_entry)*IDT_ENTRIES);
     
     create_isrs();
     install_IRQs();
@@ -232,6 +232,13 @@ void fault_handler(uint64_t err) {
     {
         print_set_color(PRINT_COLOR_RED,PRINT_COLOR_BLACK);
         print_str(exception_messages[err]);
+
+        if (err == PAGE_FAULT)
+        {
+            print_str(" cr2: ");
+            print_uint64( _cpu_getcr2() );
+        }
+
         haltCPU();
     }else {
         irq_handler(err);

@@ -1,123 +1,107 @@
 #include "kernel/kalloc.h"
 #include "kernel/Paging.h"
+#include "libc/delay.h"
 
-// An indexer for loading raw physical memory areas from the multiboot
-// mmap entry list.
-static size_t kalloc_initialPageLoader = 0;
+typedef struct kalloc_pf
+{
+    struct kalloc_pf* next;
+    struct kalloc_pf* prev;
+} kallocpf_t;
 
-/**
- * a page node will be stored in the beggining of a freed page,
- * so the pointer value to the kalloc_page_node itself is a pointer to the
- * page, which is guarenteed to be of size 4096 (PAGE_SIZE)
- */
-struct kalloc_page_node{
-    struct kalloc_page_node* prev;
-    struct kalloc_page_node* next;
-};
+struct kalloc_pf* kalloc_pf_base = NULL;
 
-typedef struct kalloc_page_node kalloc_page_node_t;
-
-// A linked list storing physical addresses of free pages
-static kalloc_page_node_t* kalloc_freePages = NULL;
-
-// Add a new page to the linked list
-static void push_free_page(void* p) {
-    // If the list head exists already:
-    if (kalloc_freePages) {
-        // If there is a prev element:
-        if (kalloc_freePages->prev) {
-            // Update the end of the list with the appended page
-            kalloc_freePages->prev->next = p;
-            ((kalloc_page_node_t*) p)->prev = kalloc_freePages->prev;
-            
-
-        }else { // if there is no second element
-            // Update the head->next
-            kalloc_freePages->next = p;
-            // setup a prev for p
-            ((kalloc_page_node_t*) p)->prev = kalloc_freePages;
-
-        }
-
-        // Append p via ->prev 
-        kalloc_freePages->prev = p;
-        // Ensure that the next pointer doesn't dangle
-        kalloc_freePages->prev->next = NULL;
-    }else {
-        // If the linked list does not yet exist:
-        // Set it to P
-        kalloc_freePages = p;
-        kalloc_freePages->next = NULL;
-        kalloc_freePages->prev = NULL;
-    }
-
-}
-
-
-
-Page kalloc_page(){
-    Page out;
-    out.addr = NULL;
-    // In order to return a page, there are two methods:
-    //  1. Find an unopened page from the multiboot2 mmap entries
-    //  2. Find a pre-existing page that has already been loaded from
-    //      multiboot2
-    // The first page will of course have to be loaded from multiboot
-    // 
-
-
-    // If there are no free existing pages available...
-    if (kalloc_freePages == NULL) {
-        
-        // While loop to seach for valid memory
-        while ( !out.addr ) {
-            // If more memory remains in multiboot
-            if (kalloc_initialPageLoader < globalMemoryList_size) {
-                // Get the next area of physical memory (arbitrary size)
-                PhysicalMemoryArea area;
-                area.type = globalMemoryList[ kalloc_initialPageLoader ].type;
-                area.chunk.start = globalMemoryList[ kalloc_initialPageLoader ].chunk.start;
-                area.chunk.end = globalMemoryList[ kalloc_initialPageLoader ].chunk.end;
-
-
-                // Check if the area is valid for RAM use...
-                // if not, the loop continues
-                if (physicalMemoryAreaValid( &area )) {
-                    out.addr = (area.chunk.start);
-                    // since a valid page has been found,
-                    // all other valid pages in this area need to be loaded into the free
-                    // pages linked list so that they can be loaded too later.
-                    char* ptr = out.addr + PAGE_SIZE;
-                    while (ptr < area.chunk.end) {
-                        // add each offset of PAGE_SIZE to the linked list
-                        //push_free_page(ptr);
-                        ptr += PAGE_SIZE;
-                    }
-                    
-                }
-
-                kalloc_initialPageLoader ++ ;
-
-
-            } else {
-                return (Page){addr:NULL}; // Out of Memory Error
-            }
-        }
-
-    }
-    else 
+static struct kalloc_pf* pop_page()
+{
+    if (kalloc_pf_base)
     {
-        // If a freed page does exist, simply return it
-        // and pop it off the list
-        out.addr = (char*) kalloc_freePages;
-        kalloc_freePages = kalloc_freePages->next;
+        struct kalloc_pf* out = kalloc_pf_base->prev;
+        if (out)
+        {
+            kalloc_pf_base->prev = out->prev;
+            if (out->prev) out->prev->next = kalloc_pf_base;
+        }
+        else
+        {
+            out = kalloc_pf_base;
+            kalloc_pf_base = NULL;
+        }
+        print_uint64( (uint64_t)out );
+        print_newline();
+        // bzero( (va_t)out, PAGE_SIZE );
+        return out;
+    }
+    else
+    {
+        return NULL;
+    }
+}
+
+static void push_page( struct kalloc_pf* pf )
+{
+    if ( kalloc_pf_base )
+    {
+        if (kalloc_pf_base->prev){
+            kalloc_pf_base->prev->next = pf;
+            
+        }
+        pf->prev = kalloc_pf_base->prev;
+        kalloc_pf_base->prev = pf;
+        pf->next = kalloc_pf_base;
+        
+    }
+    else
+    {
+        kalloc_pf_base = pf;
+        pf->next = NULL;
+        pf->prev = NULL;
+        
+    }
+}
+
+
+va_t kalloc_page()
+{
+    return (va_t) pop_page();
+}
+void kfree_page(va_t kchunk)
+{
+    push_page( (struct kalloc_pf*)kchunk );
+}
+
+
+void kalloc_init(  )
+{
+    size_t availableBytes = 0;
+    for ( size_t i = 0 ; i < globalMemoryList_size; i++ )
+    {
+        if( physicalMemoryAreaValid( &globalMemoryList[i] )  )
+        {
+            pa_t start = (pa_t) globalMemoryList[i].chunk.start;
+            pa_t end = (pa_t) globalMemoryList[i].chunk.end;
+            
+            start = (pa_t) PAGE_ALIGN_NEXT((uint64_t)(start));
+            availableBytes += (size_t) (end-start);
+
+            while (start < end )
+            {
+                if (start < (pa_t) 3178496ULL)
+                {
+                    kallocpf_t* startpf = (kallocpf_t*) start;
+                    push_page( startpf );
+                    start += PAGE_SIZE;
+                }
+                else
+                {
+                    return;
+                }
+            }
+
+            
+        }
     }
 
-    return ( Page ) { addr: mapPageToKernelVirtualSpace(out.addr) };
+    print_str("Available bytes of memory: ");
+    print_uint64( availableBytes );
+    print_newline();
 
 }
-void kfree_page(Page p);
-
-void * kalloc(size_t size);
-void * krealloc(void* kchunk, size_t newsize);
-void kfree(void* kchunk);

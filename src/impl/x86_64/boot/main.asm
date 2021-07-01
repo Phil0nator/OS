@@ -1,6 +1,8 @@
 global start
 global multibootInfo
 global page_table_l4
+global page_table_l3
+global page_table_l2
 extern long_mode_start
 section .text
 bits 32
