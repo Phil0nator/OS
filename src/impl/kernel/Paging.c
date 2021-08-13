@@ -65,24 +65,20 @@ va_t createVirtualAddress( uint64_t p4idx, uint64_t p3idx, uint64_t p2idx, uint6
 void wire_page( pa_t pa, va_t va )
 {
 
-    PageTable_t* l3 = (PageTable_t*) kalloc_page();
-    page_table_l4.entries[ PAGE_P4IDX((uint64_t)va) ].physicalAddress = (uint64_t)l3;
+    struct VirtualAddress vas;
+    vas = *(struct VirtualAddress*)(va);
     
-    setPresWrit( &page_table_l4, PAGE_P4IDX((uint64_t)va) );
-    
-    setPresWrit( l3,  PAGE_P3IDX((uint64_t)va) );
-    
-    PageTable_t* l2 = (PageTable_t*) kalloc_page();
-    l3->entries[ PAGE_P3IDX((uint64_t)va) ].physicalAddress = (uint64_t)l2;
-    
-    setPresWrit( l2,  PAGE_P2IDX((uint64_t)va) );
-    
-    PageTable_t* l1 = (PageTable_t*) kalloc_page();
-    l2->entries[ PAGE_P2IDX((uint64_t)va) ].physicalAddress = (uint64_t)l1;
-    
-    setPresWrit( l1,  PAGE_P1IDX((uint64_t)va) );
-    l1->entries[ PAGE_P1IDX( (uint64_t)va ) ].physicalAddress = PAGE_ALIGN(pa);
-    
+    if ( !page_table_l4.entries[vas.PML4].present )
+    {
+        pa_t newl3 = kalloc_page();
+        page_table_l4.entries[vas.PML4].physicalAddress = newl3;
+        setPresWrit( &page_table_l4, vas.PML4 );
+    }
+
+    PageTable_t* l3 = (PageTable_t*) page_table_l4.entries[vas.PML4].physicalAddress; 
+
+
+
     // *((char*)
     // ((PageTable_t*)
     // ((PageTable_t*)

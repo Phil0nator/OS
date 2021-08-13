@@ -42,7 +42,6 @@ static void push_page( struct kalloc_pf* pf )
     {
         if (kalloc_pf_base->prev){
             kalloc_pf_base->prev->next = pf;
-            
         }
         pf->prev = kalloc_pf_base->prev;
         kalloc_pf_base->prev = pf;
@@ -54,7 +53,6 @@ static void push_page( struct kalloc_pf* pf )
         kalloc_pf_base = pf;
         pf->next = NULL;
         pf->prev = NULL;
-        
     }
 }
 
@@ -84,7 +82,7 @@ void kalloc_init(  )
 
             while (start < end )
             {
-                if (start < (pa_t) 3178496ULL)
+                if (start < (pa_t) 3178495ULL)
                 {
                     kallocpf_t* startpf = (kallocpf_t*) start;
                     push_page( startpf );
@@ -92,14 +90,14 @@ void kalloc_init(  )
                 }
                 else
                 {
-                    return;
+                    goto end_kinit;
                 }
             }
 
             
         }
     }
-
+    end_kinit:
     print_str("Available bytes of memory: ");
     print_uint64( availableBytes );
     print_newline();

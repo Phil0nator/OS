@@ -59,21 +59,21 @@ void kernel_main(void* addr, uint32_t magic) {
     //     print_str("\n}\n");
     //     delayticks(5*18);
     // }
-    va_t test = kalloc_page();
-    if (test) {
-        print_uint64((size_t)test);
-        memcpy(test, "\ntesting string\n", 17);
-        print_str(test);
-    }else {
-        print_str("No Memory Error.");
-    }
+    // va_t test = kalloc_page();
+    // if (test) {
+    //     print_uint64((size_t)test);
+    //     memcpy(test, "\ntesting string\n", 17);
+    //     print_str(test);
+    // }else {
+    //     print_str("No Memory Error.");
+    // }
 
     //2146304                     -- sign --   |    l4  |  l3    |   l2   |  l1    |   offset  |
-    #define TESTINGNUM ((va_t)0b0000000000000000000000001000000000000000000000000000000000000000ULL)
-    wire_page( (pa_t)kalloc_page(), TESTINGNUM );
-    print_str("wire_page:\n");
-    //memcpy( TESTINGNUM, "\ntesting\n", 10 );
-    print_str( TESTINGNUM );
+    // #define TESTINGNUM ((va_t)0b0000000000000000000000001000000000000000000000000000000000000000ULL)
+    // wire_page( (pa_t)kalloc_page(), TESTINGNUM );
+    // print_str("wire_page:\n");
+    // //memcpy( TESTINGNUM, "\ntesting\n", 10 );
+    // print_str( TESTINGNUM );
     
     for (;;);
 

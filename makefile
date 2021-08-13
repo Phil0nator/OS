@@ -2,7 +2,7 @@ CC = gcc
 OPT = -Os 
 WARNS = -Wall -Wextra
 LIBOPT = -flto
-MCMODEL = -mcmodel=kernel -fno-pie
+MCMODEL = -mcmodel=large -fno-pie -nostdlib
 
 
 

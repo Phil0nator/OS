@@ -13,6 +13,7 @@ bits 32
 %define PAGING_ENABLE_PAE_BIT 5
 %define ENABLE_LONGMODE_BIT 8
 %define ENABLE_PAGING_BIT 31
+%define HIGH_KERNEL_OFF 0xC0000000
 
 copyMultibootHeader:
     push ecx

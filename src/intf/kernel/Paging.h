@@ -4,10 +4,12 @@
 #include <stddef.h>
 #include "globals.h"
 #define PAGE_ENTRIES_PER_TABLE 512
-
+#define PAGE_ADDR_MASK 0x000ffffffffff000
 
 typedef char* va_t;         // Virtual address
 typedef uint64_t pa_t;      // Physical address
+
+#pragma pack(1)
 
 struct PagingEntryBitField{
 
@@ -21,12 +23,22 @@ struct PagingEntryBitField{
     bool huge: 1;
     bool global: 1;
     uint32_t free_space: 3;
-    uint64_t physicalAddress: 39;
+    uint64_t physicalAddress: 48;
     uint32_t free_space2: 10;
     bool no_execute: 1; 
 
 };
 
+struct VirtualAddress
+{
+    uint32_t PML4: 9;
+    uint32_t PDPT: 9;
+    uint32_t TABL: 9;
+    uint32_t ADDR: 9;
+    uint32_t OFF : 12;
+};
+
+#pragma pack()
 
 typedef struct PagingEntryBitField PagingEntryBitField_t;
 

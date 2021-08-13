@@ -227,7 +227,6 @@ void setIDTGate(uint8_t num, size_t base, uint16_t sel, uint8_t flags){
 
 }
 void fault_handler(uint64_t err) {
-
     if (err < 32) 
     {
         print_set_color(PRINT_COLOR_RED,PRINT_COLOR_BLACK);

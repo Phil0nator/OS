@@ -8,7 +8,8 @@ global start_system_interrupts
 
 ; load the IDTP into the cpu's internal register
 load_interdesctable:
-    lidt [hardcodedIDTP]
+    mov rax, hardcodedIDTP
+    lidt [rax]
     ret
 
 start_system_interrupts:
