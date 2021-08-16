@@ -66,7 +66,7 @@ void wire_page( pa_t pa, va_t va )
 {
 
     struct VirtualAddress vas;
-    vas = *(struct VirtualAddress*)(va);
+    vas = *(struct VirtualAddress*)(&va);
     
     if ( !page_table_l4.entries[vas.PML4].present )
     {
@@ -100,16 +100,6 @@ void wire_page( pa_t pa, va_t va )
         l1->entries[vas.ADDR].physicalAddress = newaddr;
         setPresWrit( l1, vas.ADDR );
     }
-
-
-    // *((char*)
-    // ((PageTable_t*)
-    // ((PageTable_t*)
-    // ((PageTable_t*)page_table_l4.entries[ PAGE_P4IDX((uint64_t)va) ].physicalAddress)
-    // ->entries[ PAGE_P3IDX((uint64_t)va) ].physicalAddress)
-    // ->entries[ PAGE_P2IDX((uint64_t)va) ].physicalAddress)
-    // ->entries[ PAGE_P1IDX((uint64_t)va) ].physicalAddress) = 'c';
-    
     
 
     

@@ -52,20 +52,32 @@ void kernel_main(void* addr, uint32_t magic) {
     kalloc_init();
 
     
-    va_t test = kalloc_page();
-    if (test) {
-        memcpy(test, "\ntesting string\n", 17);
-    }else {
-        print_str("No Memory Error.");
-    }
+    // va_t test = kalloc_page();
+    // if (test) {
+    //     memcpy(test, "\ntesting string\n", 17);
+    // }else {
+    //     print_str("No Memory Error.");
+    // }
 
     //2146304                     -- sign --   |    l4  |  l3    |   l2   |  l1    |   offset  |
     // #define TESTINGNUM ((va_t)0b0000000000000000000000001000000000000000000000000000000000000000ULL)
-    // wire_page( (pa_t)kalloc_page(), TESTINGNUM );
+    int *pa = (int*) kalloc_page();
+    struct VirtualAddress va;
+    va.OFF=0;
+    va.ADDR=1;
+    va.PDPT=1;
+    va.PML4=1;
+    wire_page( (pa_t)pa, *(va_t*)(&va) );
     // print_str("wire_page:\n");
     // //memcpy( TESTINGNUM, "\ntesting\n", 10 );
     // print_str( TESTINGNUM );
     
+    *pa = 5;
+
+    int* test = *(int**)(&va);
+    // *test = 5;
+    print_uint64(*test);
+
     for (;;);
 
 
