@@ -51,22 +51,13 @@ void kernel_main(void* addr, uint32_t magic) {
     
     kalloc_init();
 
-    // for (size_t i = 0 ; i < globalMemoryList_size ; i ++) {
-    //     print_str("{\n     start: ");
-    //     print_uint64((size_t)globalMemoryList[i].chunk.start);
-    //     print_str("\n     end: ");
-    //     print_uint64((size_t)globalMemoryList[i].chunk.end);
-    //     print_str("\n}\n");
-    //     delayticks(5*18);
-    // }
-    // va_t test = kalloc_page();
-    // if (test) {
-    //     print_uint64((size_t)test);
-    //     memcpy(test, "\ntesting string\n", 17);
-    //     print_str(test);
-    // }else {
-    //     print_str("No Memory Error.");
-    // }
+    
+    va_t test = kalloc_page();
+    if (test) {
+        memcpy(test, "\ntesting string\n", 17);
+    }else {
+        print_str("No Memory Error.");
+    }
 
     //2146304                     -- sign --   |    l4  |  l3    |   l2   |  l1    |   offset  |
     // #define TESTINGNUM ((va_t)0b0000000000000000000000001000000000000000000000000000000000000000ULL)

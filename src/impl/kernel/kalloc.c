@@ -2,58 +2,28 @@
 #include "kernel/Paging.h"
 #include "libc/delay.h"
 
-typedef struct kalloc_pf
-{
-    struct kalloc_pf* next;
-    struct kalloc_pf* prev;
-} kallocpf_t;
+// typedef struct kalloc_pf
+// {
+//     struct kalloc_pf* next;
+//     struct kalloc_pf* prev;
+// } kallocpf_t;
 
-struct kalloc_pf* kalloc_pf_base = NULL;
+// struct kalloc_pf* kalloc_pf_base = NULL;
 
-static struct kalloc_pf* pop_page()
+static void* page_entries[16384];
+static size_t page_entries_pointer = 0;
+
+
+static void* pop_page()
 {
-    if (kalloc_pf_base)
-    {
-        struct kalloc_pf* out = kalloc_pf_base->prev;
-        if (out)
-        {
-            kalloc_pf_base->prev = out->prev;
-            if (out->prev) out->prev->next = kalloc_pf_base;
-        }
-        else
-        {
-            out = kalloc_pf_base;
-            kalloc_pf_base = NULL;
-        }
-        print_uint64( (uint64_t)out );
-        print_newline();
-        // bzero( (va_t)out, PAGE_SIZE );
-        return out;
-    }
-    else
-    {
-        return NULL;
-    }
+    page_entries_pointer--;
+    return page_entries[page_entries_pointer];
 }
 
-static void push_page( struct kalloc_pf* pf )
+
+static void push_page( void* pf )
 {
-    if ( kalloc_pf_base )
-    {
-        if (kalloc_pf_base->prev){
-            kalloc_pf_base->prev->next = pf;
-        }
-        pf->prev = kalloc_pf_base->prev;
-        kalloc_pf_base->prev = pf;
-        pf->next = kalloc_pf_base;
-        
-    }
-    else
-    {
-        kalloc_pf_base = pf;
-        pf->next = NULL;
-        pf->prev = NULL;
-    }
+    page_entries[page_entries_pointer++] = pf;
 }
 
 
@@ -84,7 +54,7 @@ void kalloc_init(  )
             {
                 if (start < (pa_t) 3178495ULL)
                 {
-                    kallocpf_t* startpf = (kallocpf_t*) start;
+                    void* startpf = (void*) start;
                     push_page( startpf );
                     start += PAGE_SIZE;
                 }

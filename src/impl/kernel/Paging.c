@@ -76,7 +76,30 @@ void wire_page( pa_t pa, va_t va )
     }
 
     PageTable_t* l3 = (PageTable_t*) page_table_l4.entries[vas.PML4].physicalAddress; 
+    if (!l3->entries[vas.PDPT].present)
+    {
+        pa_t newl2 = kalloc_page();
+        l3->entries[vas.PDPT].physicalAddress = newl2;
+        setPresWrit( l3, vas.PDPT );
+    }
 
+    PageTable_t* l2 = (PageTable_t*) l3->entries[vas.PDPT].physicalAddress;
+
+    if (!l2->entries[vas.TABL].present)
+    {
+        pa_t newl1 = kalloc_page();
+        l2->entries[vas.TABL].physicalAddress = newl1;
+        setPresWrit( l2, vas.TABL );
+    }
+
+    PageTable_t* l1 = (PageTable_t*) l2->entries[vas.TABL].physicalAddress;
+
+    if (!l1->entries[vas.ADDR].present)
+    {
+        pa_t newaddr = kalloc_page();
+        l1->entries[vas.ADDR].physicalAddress = newaddr;
+        setPresWrit( l1, vas.ADDR );
+    }
 
 
     // *((char*)
